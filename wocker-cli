@@ -245,6 +245,18 @@ function addhost() {
     fi
 }
 
+
+
+function renameblog() {
+	cid=$(docker ps -q)
+	if [[ ! $cid =~ $'\n' ]]; then
+			docker exec -u $USER $cid wp search-replace "wocker.dev" "$1.dev"
+	fi
+
+}
+
+
+
 # end
 
 
@@ -317,8 +329,9 @@ case "$1" in
 	  chcon -Rt svirt_sandbox_file_t ${PROJECT_FOLDER}/data/${dirname}/
       	fi
         docker run -d --name $cname -p ${WEBPORT}:80 -p ${DBPORT}:3306 -v ${PROJECT_FOLDER}/data/${dirname}:${DOCROOT}:rw $image
-
         addhost
+				sleep 3
+				renameblog $cname
       fi
 
     fi
