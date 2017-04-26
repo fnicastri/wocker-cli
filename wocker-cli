@@ -24,7 +24,6 @@ theme_test_data_url=''
 # Hosts Configuration
 ETC_HOSTS='/etc/hosts'
 IP=127.0.0.1
-host_name=${cname}".dev"
 
 
 wocker_usage() {
@@ -215,6 +214,8 @@ wocker_theme_test_usage() {
 
 
 function removehost() {
+  host_name=${cname}".dev"
+
     if [ -n "$(grep $host_name /etc/hosts)" ]
     then
         echo "$host_name Found in your $ETC_HOSTS, Removing now...";
@@ -225,13 +226,15 @@ function removehost() {
 }
 
 function addhost() {
-    HOSTS_LINE="$IP\t$host_name"
+  host_name=${cname}".dev"
+
+    HOSTS_LINE="$IP\t$host_name\t$cname"
     if [ -n "$(grep $host_name /etc/hosts)" ]
         then
             echo "$host_name already exists : $(grep $host_name $ETC_HOSTS)"
         else
             echo "Adding $host_name to your $ETC_HOSTS";
-            sudo -- sh -c -e "echo '$HOSTS_LINE' >> /etc/hosts";
+            sudo -- sh -c -e "echo -e '$HOSTS_LINE' >> /etc/hosts";
 
             if [ -n "$(grep $host_name /etc/hosts)" ]
                 then
@@ -314,8 +317,21 @@ case "$1" in
 	  chcon -Rt svirt_sandbox_file_t ${PROJECT_FOLDER}/data/${dirname}/
       	fi
         docker run -d --name $cname -p ${WEBPORT}:80 -p ${DBPORT}:3306 -v ${PROJECT_FOLDER}/data/${dirname}:${DOCROOT}:rw $image
+
+        addhost
       fi
 
+    fi
+    ;;
+
+  'start' )
+
+    if [[ "$2" = '--help' ]]; then
+      echo 'start what?'
+    else
+      cname=$2
+      docker $@
+      addhost
     fi
     ;;
 
@@ -333,7 +349,8 @@ case "$1" in
       elif [[ $(docker ps -q) ]]; then
         docker stop $(docker ps --format='{{.Names}}')
       fi
-
+      cname=$2
+      removehost
     fi
     ;;
 
