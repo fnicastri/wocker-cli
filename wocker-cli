@@ -318,8 +318,16 @@ case "$1" in
       	fi
         docker run -d --name $cname -p ${WEBPORT}:80 -p ${DBPORT}:3306 -v ${PROJECT_FOLDER}/data/${dirname}:${DOCROOT}:rw $image
 
-        addhost
       fi
+
+        cid=$(docker ps -q)
+        echo $USER
+        echo $cid
+        sleep 3
+        docker exec -u $USER $cid wp search-replace "wocker.dev" "${cname}.dev"
+
+        addhost
+
 
     fi
     ;;
