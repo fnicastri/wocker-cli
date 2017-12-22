@@ -221,7 +221,7 @@ function removehost() {
 
 		if [ -n "${cname}" ]; then
 			echo "rimuovo"
-			host_name=${cname}".dev"
+			host_name=${cname}".local"
 
 			if [ -n "$(grep $host_name /etc/hosts)" ]
 				then
@@ -238,7 +238,7 @@ function removehost() {
 		if [[ "$3" = '--no-host' ||  "$3" = '--no-host' ]]; then
 			return
 	else
-		host_name=${cname}".dev"
+		host_name=${cname}".local"
 
 		HOSTS_LINE="$IP\t$host_name\t$cname"
 		if [ -n "$(grep $host_name /etc/hosts)" ]
@@ -263,9 +263,8 @@ function removehost() {
 	function renameblog() {
 		cid=$(docker ps -q)
 		if [[ ! $cid =~ $'\n' ]]; then
-			docker exec -u $USER $cid wp search-replace "wocker.dev" "$1.dev"
+			docker exec -u $USER $cid wp search-replace "wocker.dev" "$1.local"
 		fi
-
 	}
 
 	function shell() {
@@ -365,7 +364,7 @@ function removehost() {
 			echo $USER
 			echo $cid
 			sleep 3
-			docker exec -u $USER $cid wp search-replace "wocker.dev" "${cname}.dev"
+			docker exec -u $USER $cid wp search-replace "wocker.dev" "${cname}.local"
 
 			addhost
 
